@@ -1,0 +1,81 @@
+# ===================
+# Java 后端
+# ===================
+# 编译输出
+target/
+out/
+bin/
+*.class
+
+# IDE 配置文件（非共享）
+.idea/
+*.iml
+.settings/
+.project
+.classpath
+.vscode/
+
+# Maven / Gradle 临时文件
+log/
+logs/
+.mvn/
+mvnw
+mvnw.cmd
+gradlew
+gradlew.bat
+.gradle/
+
+# 应用生成文件
+*.log
+*.pid
+*.lock
+*.jar
+*.war
+*.ear
+application-local.yml
+application-dev.yml
+
+# ===================
+# Vue3 / 前端 (Node.js)
+# ===================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 前端打包产物
+dist/
+dist-ssr/
+*.local
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 依赖缓存
+.cache/
+.parcel-cache/
+
+# ===================
+# 操作系统或编辑器通用
+# ===================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dataSources.local.xml
+
+# ===================
+# 其他常见
+# ===================
+*.bak
+*.tmp
+hs_err_pid*
+replay_pid*
+spec/
+api/
