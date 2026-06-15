@@ -16,50 +16,43 @@ onMounted(async () => {
   if (!canvas) return
   const ctx = canvas.getContext('2d')
 
-  // ── Zone-based character sets ──
-  const CHARS_A = 'ΞΨΩΔΠΣΦΘΛΓ≡≈∞∏∑√∫∂∇∈∉⊕⊗⊞⊟⊠⊡' +
-    '启元道极虚灵玄幽穹冥乾坤震离坎兑炁爻'
-  const CHARS_B = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&{}[]<>/|!'
-  const CHARS_C = 'abcdefghijklmnopqrstuvwxyz0123456789+-=_.:;,'
+  // ── Six character sets: CN 40%, others 60% evenly split ──
+  const CHARS_CN = '启元道极虚灵玄幽穹冥乾坤震离坎兑炁爻'
+  const CHARS_GREEK = 'ΞΨΩΔΠΣΦΘΛΓ≡≈∞∏∑√∫∂∇∈∉⊕⊗⊞⊟⊠⊡'
+  const CHARS_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  const CHARS_LOWER = 'abcdefghijklmnopqrstuvwxyz'
+  const CHARS_NUM = '0123456789'
+  const CHARS_SYMBOL = '@#$%&{}[]<>/|!+-=_.:;,'
 
-  const FONT_SIZE = 14
-  const BASE_BRIGHTNESS = { r: 180, g: 180, b: 190 }
+  const FONT_SIZE = 16
+  const LINE_HEIGHT = 1.35
 
   const ZONE_A_MAX = 0.30
-  const ZONE_B_MAX = 0.58
 
   function personalityForZone(zoneRatio) {
-    if (zoneRatio < ZONE_A_MAX) {
-      const r = Math.random() * 100
-      if (r < 20) return 'stable'
-      if (r < 55) return 'slow'
-      if (r < 85) return 'jitter'
-      return 'glitch'
-    } else if (zoneRatio < ZONE_B_MAX) {
-      const r = Math.random() * 100
-      if (r < 55) return 'stable'
-      if (r < 80) return 'slow'
-      if (r < 95) return 'jitter'
-      return 'glitch'
-    } else {
-      const r = Math.random() * 100
-      if (r < 90) return 'stable'
-      return 'slow'
-    }
+    // ~99% change every 5-20s, ~1% change every 2-5s (vivid pop-outs)
+    // All non-vivid characters have same brightness — no static circle boundary
+    if (Math.random() < 0.01) return 'vivid'
+    return zoneRatio < ZONE_A_MAX ? 'mid' : 'dim'
   }
 
-  function charForZone(zoneRatio) {
-    const pool = zoneRatio < ZONE_A_MAX ? CHARS_A
-      : zoneRatio < ZONE_B_MAX ? CHARS_B
-      : CHARS_C
-    return pool[Math.floor(Math.random() * pool.length)]
+  function randomChar() {
+    // Pure random: each update can change type freely; 40% Chinese
+    const r = Math.random()
+    let pool, type
+    if (r < 0.40) { pool = CHARS_CN; type = 'cn' }
+    else if (r < 0.52) { pool = CHARS_GREEK; type = 'gk' }
+    else if (r < 0.64) { pool = CHARS_UPPER; type = 'up' }
+    else if (r < 0.76) { pool = CHARS_LOWER; type = 'lo' }
+    else if (r < 0.88) { pool = CHARS_NUM; type = 'num' }
+    else { pool = CHARS_SYMBOL; type = 'sym' }
+    return { char: pool[Math.floor(Math.random() * pool.length)], type }
   }
 
   const PERSONALITY = {
-    stable: { min: 8000,  max: 12000, alphaMul: 0.55, colorMul: 0.75 },
-    slow:   { min: 4000,  max: 7000,  alphaMul: 0.75, colorMul: 0.85 },
-    jitter: { min: 800,   max: 2500,  alphaMul: 1.0,  colorMul: 1.0 },
-    glitch: { min: 120,   max: 500,   alphaMul: 1.2,  colorMul: 1.35 }
+    dim:  { min: 6000,  max: 10000, alphaMul: 0.70, colorMul: 0.85 },
+    mid:  { min: 4000,  max: 8000,  alphaMul: 0.70, colorMul: 0.85 },
+    vivid:{ min: 2000,  max: 5000,  alphaMul: 0.95, colorMul: 1.10 }
   }
 
   function randomInterval(p) {
@@ -90,13 +83,13 @@ onMounted(async () => {
     maxDist = Math.sqrt(cx * cx + cy * cy)
     for (let i = 0; i < grid.length; i++) {
       posX[i] = (i % cols) * FONT_SIZE + FONT_SIZE / 2
-      posY[i] = Math.floor(i / cols) * FONT_SIZE
+      posY[i] = Math.floor(i / cols) * FONT_SIZE * LINE_HEIGHT
     }
   }
 
   function rebuildGrid() {
     cols = Math.floor(width / FONT_SIZE)
-    rows = Math.floor(height / FONT_SIZE)
+    rows = Math.floor(height / (FONT_SIZE * LINE_HEIGHT))
     const now = performance.now()
     posX = new Array(cols * rows)
     posY = new Array(cols * rows)
@@ -105,9 +98,11 @@ onMounted(async () => {
       const zr = getZoneRatio(i)
       const pers = personalityForZone(zr)
       const p = PERSONALITY[pers]
+      const { char, type } = randomChar()
       return {
-        char: charForZone(zr),
-        nextUpdate: now + randomInterval(p),
+        char,
+        type,
+        nextUpdate: now + Math.random() * 2000, // quick initial stagger
         personality: pers
       }
     })
@@ -152,41 +147,55 @@ onMounted(async () => {
     }
     lastFrameTime = time
 
+    // ── Eye gaze effect: sway left/right + pulse focus radius (clearly visible) ──
+    const GAZE_SPEED = 0.0005
+    const GAZE_AMPLITUDE = 0.30
+    const PULSE_SPEED = 0.0007
+    const PULSE_MIN = 0.35
+    const PULSE_MAX = 1.15
+
+    const gazeOffset = Math.sin(time * GAZE_SPEED) * width * GAZE_AMPLITUDE
+    const focusScale = PULSE_MIN + (PULSE_MAX - PULSE_MIN) * (0.5 + 0.5 * Math.sin(time * PULSE_SPEED))
+
+    const dynamicCx = cx + gazeOffset
+    const dynamicMaxDist = maxDist * focusScale
+
     ctx.clearRect(0, 0, width, height)
-    ctx.font = `${FONT_SIZE}px "Courier New", monospace`
+    ctx.font = `${FONT_SIZE}px "Cascadia Code", "Fira Code", "SF Mono", "Consolas", "Courier New", monospace`
 
     for (let i = 0; i < grid.length; i++) {
       const cell = grid[i]
       if (time > cell.nextUpdate) {
         const zr = getZoneRatio(i)
-        cell.char = charForZone(zr)
+        const { char, type } = randomChar()
+        cell.char = char
+        cell.type = type
         const p = PERSONALITY[cell.personality]
         cell.nextUpdate = time + randomInterval(p)
       }
 
       const px = posX[i]
       const py = posY[i]
-      const dx = px - cx
-      const dy = py - cy
-      const dist = Math.sqrt(dx * dx + dy * dy)
-      let alpha = Math.pow(Math.max(0, 1 - dist / maxDist), 2.0)
+
+      // Use dynamic gaze center for brightness (eye-like movement)
+      const gdx = px - dynamicCx
+      const gdy = py - cy
+      const gazeDist = Math.sqrt(gdx * gdx + gdy * gdy)
+      let alpha = Math.pow(Math.max(0, 1 - gazeDist / dynamicMaxDist), 1.5)
 
       const p = PERSONALITY[cell.personality]
-      alpha *= p.alphaMul * 1.2
-      const cm = p.colorMul
-      const r = Math.min(255, Math.round(BASE_BRIGHTNESS.r * cm))
-      const g = Math.min(255, Math.round(BASE_BRIGHTNESS.g * cm))
-      const b = Math.min(255, Math.round(BASE_BRIGHTNESS.b * cm))
+      alpha *= p.alphaMul * 1.1
+      // All characters use dark gold (no type-based split)
+      const GOLD = { r: 170, g: 135, b: 45 }
+      const baseR = GOLD.r
+      const baseG = GOLD.g
+      const baseB = GOLD.b
 
-      const zr = dist / maxDist
+      const cm = p.colorMul
+      const r = Math.min(255, Math.round(baseR * cm))
+      const g = Math.min(255, Math.round(baseG * cm))
+      const b = Math.min(255, Math.round(baseB * cm))
       let rf = r, gf = g, bf = b
-      if (zr > ZONE_B_MAX) {
-        const edgeT = (zr - ZONE_B_MAX) / (1 - ZONE_B_MAX)
-        rf = Math.round(r * (1 - edgeT * 0.3))
-        gf = Math.round(g * (1 - edgeT * 0.25))
-        bf = Math.round(b * (1 - edgeT * 0.1))
-        alpha *= (1 - edgeT * 0.15)
-      }
 
       ctx.fillStyle = `rgba(${rf},${gf},${bf},${alpha.toFixed(3)})`
       ctx.fillText(cell.char, px, py)
