@@ -18,7 +18,7 @@
           <!-- 主标题 - 打字机效果 -->
           <h1 class="main-title" v-if="showTitle">
             <TextScramble
-              :text="'Skill Manager'"
+              :text="'XSun Skill Manager'"
               :type-speed="80"
               :start-delay="400"
               font-size="56px"
@@ -54,7 +54,7 @@
 
           <!-- 底部版本信息（静态） -->
           <div class="version-info">
-            <span style="font-size:11px; color:rgba(255,255,255,0.15)">v1.0.0 · Secure by Design</span>
+            <span style="font-size:11px; color:rgba(255,255,255,0.15)">v1.0.0 · designed by sun </span>
           </div>
         </div>
       </div>
@@ -122,10 +122,6 @@
             />
           </transition>
 
-          <!-- 注册链接（静态） -->
-          <div class="register-link">
-            <span style="font-size:12px; color:rgba(255,255,255,0.3)">还没有账号？立即注册</span>
-          </div>
         </div>
 
         <!-- 底部版权（静态） -->
@@ -272,14 +268,12 @@ async function handleSmsLogin(loginData) {
 .decoration-line {
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent);
 }
 
 .decoration-dot {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #6366F1;
   box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
 }
 
@@ -337,7 +331,6 @@ async function handleSmsLogin(loginData) {
   align-items: center;
   justify-content: center;
   padding: 60px 40px 40px;
-  border-left: 1px solid rgba(255, 255, 255, 0.04);
   background: transparent;
   z-index: 5;
 }
@@ -357,7 +350,7 @@ async function handleSmsLogin(loginData) {
     0 20px 60px rgba(0, 0, 0, 0.5),
     0 4px 16px rgba(0, 0, 0, 0.3);
   /* 内光 → 面板"有体积" */
-  position: relative;
+  position: absolute;
 }
 
 .login-card::before {
@@ -441,14 +434,6 @@ async function handleSmsLogin(loginData) {
 
 .tab-indicator {
   display: none;
-}
-
-.register-link {
-  text-align: center;
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-  min-height: 36px;
 }
 
 .copyright {
