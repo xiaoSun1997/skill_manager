@@ -1,110 +1,96 @@
 <template>
   <div class="user-list">
-    <a-card>
-      <template #title>
-        <a-space>
-          <icon-user />
-          <span>用户管理</span>
-        </a-space>
-      </template>
-
-      <!-- 搜索栏 -->
-      <div class="search-bar">
-        <a-space>
-          <a-input v-model="searchKeyword" placeholder="用户名/昵称/手机号" allow-clear style="width: 240px;">
-            <template #prefix><icon-search /></template>
+    <div class="sc-page-container">
+      <!-- 工具栏 -->
+      <div class="sc-page-header">
+        <div class="toolbar-left">
+          <a-input v-model="searchKeyword" placeholder="用户名/昵称/手机号" allow-clear style="width: 220px;">
+            <template #prefix><Icon icon="ri:search-line" width="14" height="14" /></template>
           </a-input>
           <a-select v-model="searchStatus" placeholder="状态" allow-clear style="width: 120px;">
             <a-option :value="1">启用</a-option>
             <a-option :value="0">禁用</a-option>
           </a-select>
           <a-button type="primary" @click="handleSearch">
-            <template #icon><icon-search /></template>
+            <template #icon><Icon icon="ri:search-line" width="14" height="14" /></template>
             查询
           </a-button>
-          <a-button @click="handleReset">
-            <template #icon><icon-refresh /></template>
-            重置
+          <a-button @click="handleReset">重置</a-button>
+        </div>
+        <div class="toolbar-right">
+          <a-button type="primary" @click="handleAdd">
+            <template #icon><Icon icon="ri:add-line" width="14" height="14" /></template>
+            新增用户
           </a-button>
-        </a-space>
-        <a-button type="primary" @click="handleAdd">
-          <template #icon><icon-plus /></template>
-          新增用户
-        </a-button>
+        </div>
       </div>
 
-      <a-spin :loading="loading" style="width: 100%;">
-        <a-table
-          :data="userList"
-          :pagination="pagination"
-          :bordered="false"
-          :stripe="true"
-          row-key="uuid"
-          @page-change="handlePageChange"
-          @page-size-change="handlePageSizeChange"
-        >
-          <template #columns>
-            <a-table-column title="用户名" data-index="username" :width="150">
-              <template #cell="{ record }">
-                <a-space>
-                  <a-avatar :size="28" :style="{ backgroundColor: '#6366F1' }">
-                    {{ (record.nickname || record.username)?.charAt(0)?.toUpperCase() }}
-                  </a-avatar>
-                  <span>{{ record.username }}</span>
-                </a-space>
-              </template>
-            </a-table-column>
-            <a-table-column title="昵称" data-index="nickname" :width="150">
-              <template #cell="{ record }">
-                {{ record.nickname || '-' }}
-              </template>
-            </a-table-column>
-            <a-table-column title="手机号" data-index="phone" :width="140">
-              <template #cell="{ record }">
-                {{ record.phone || '-' }}
-              </template>
-            </a-table-column>
-            <a-table-column title="邮箱" data-index="email">
-              <template #cell="{ record }">
-                {{ record.email || '-' }}
-              </template>
-            </a-table-column>
-            <a-table-column title="状态" data-index="status" :width="100">
-              <template #cell="{ record }">
-                <a-tag :color="record.status === 1 ? 'green' : 'red'">
-                  {{ record.status === 1 ? '启用' : '禁用' }}
-                </a-tag>
-              </template>
-            </a-table-column>
-            <a-table-column title="创建时间" data-index="createdAt" :width="180">
-              <template #cell="{ record }">
-                {{ record.createdAt ? formatTime(record.createdAt) : '-' }}
-              </template>
-            </a-table-column>
-            <a-table-column title="操作" :width="280" fixed="right">
-              <template #cell="{ record }">
-                <a-space>
-                  <a-button type="text" size="small" @click="handleEdit(record)">
-                    <template #icon><icon-edit /></template>
-                    编辑
-                  </a-button>
-                  <a-button type="text" size="small" @click="handleAssignRole(record)">
-                    <template #icon><icon-team /></template>
-                    分配角色
-                  </a-button>
-                  <a-popconfirm content="确认删除该用户？" @ok="handleDelete(record)">
-                    <a-button type="text" size="small" status="danger">
-                      <template #icon><icon-delete /></template>
-                      删除
-                    </a-button>
-                  </a-popconfirm>
-                </a-space>
-              </template>
-            </a-table-column>
-          </template>
-        </a-table>
-      </a-spin>
-    </a-card>
+      <!-- 表格 -->
+      <div class="sc-page-main">
+        <a-spin :loading="loading" style="width: 100%;">
+          <a-table
+            :data="userList"
+            :pagination="pagination"
+            :bordered="{ cell: false }"
+            :stripe="true"
+            row-key="uuid"
+            @page-change="handlePageChange"
+            @page-size-change="handlePageSizeChange"
+          >
+            <template #columns>
+              <a-table-column title="用户名" data-index="username" :width="150">
+                <template #cell="{ record }">
+                  <a-space>
+                    <a-avatar :size="28" :style="{ backgroundColor: 'var(--primary-color)' }">
+                      {{ (record.nickname || record.username)?.charAt(0)?.toUpperCase() }}
+                    </a-avatar>
+                    <span>{{ record.username }}</span>
+                  </a-space>
+                </template>
+              </a-table-column>
+              <a-table-column title="昵称" data-index="nickname" :width="150">
+                <template #cell="{ record }">
+                  {{ record.nickname || '-' }}
+                </template>
+              </a-table-column>
+              <a-table-column title="手机号" data-index="phone" :width="140">
+                <template #cell="{ record }">
+                  {{ record.phone || '-' }}
+                </template>
+              </a-table-column>
+              <a-table-column title="邮箱" data-index="email">
+                <template #cell="{ record }">
+                  {{ record.email || '-' }}
+                </template>
+              </a-table-column>
+              <a-table-column title="状态" data-index="status" :width="100">
+                <template #cell="{ record }">
+                  <a-tag :color="record.status === 1 ? 'green' : 'red'" size="small">
+                    {{ record.status === 1 ? '启用' : '禁用' }}
+                  </a-tag>
+                </template>
+              </a-table-column>
+              <a-table-column title="创建时间" data-index="createdAt" :width="180">
+                <template #cell="{ record }">
+                  {{ record.createdAt ? formatTime(record.createdAt) : '-' }}
+                </template>
+              </a-table-column>
+              <a-table-column title="操作" :width="200" fixed="right" align="right">
+                <template #cell="{ record }">
+                  <a-button-group>
+                    <a-button type="text" size="mini" @click="handleEdit(record)">编辑</a-button>
+                    <a-button type="text" size="mini" @click="handleAssignRole(record)">分配角色</a-button>
+                    <a-popconfirm content="确认删除该用户？" @ok="handleDelete(record)">
+                      <a-button type="text" size="mini" status="danger">删除</a-button>
+                    </a-popconfirm>
+                  </a-button-group>
+                </template>
+              </a-table-column>
+            </template>
+          </a-table>
+        </a-spin>
+      </div>
+    </div>
 
     <!-- 新增/编辑弹窗 -->
     <UserForm :visible="formVisible" :user="editingUser" @close="formVisible = false" @success="loadUsers" />
@@ -136,6 +122,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { Message } from '@arco-design/web-vue'
+import { Icon } from '@iconify/vue'
 import { getUserList, deleteUser, getUserRoles, assignUserRoles } from '@/api/user'
 import { getRoleList } from '@/api/role'
 import UserForm from './UserForm.vue'
@@ -268,13 +255,4 @@ async function handleAssignRoleOk() {
 onMounted(loadUsers)
 </script>
 
-<style scoped>
-.search-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-</style>
+

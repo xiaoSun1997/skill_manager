@@ -1,35 +1,38 @@
 <template>
   <div class="permission-list">
-    <a-card>
-      <template #title>
-        <a-space>
-          <icon-safe />
-          <span>权限管理</span>
-        </a-space>
-      </template>
-      <template #extra>
-        <a-button type="primary" @click="handleAdd(null)">
-          <template #icon><icon-plus /></template>
-          新增根权限
-        </a-button>
-      </template>
+    <div class="sc-page-container">
+      <!-- 工具栏 -->
+      <div class="sc-page-header">
+        <div class="toolbar-left">
+          <span style="font-size: 14px; font-weight: 500; color: var(--text-primary);">权限字典</span>
+        </div>
+        <div class="toolbar-right">
+          <a-button type="primary" @click="handleAdd(null)">
+            <template #icon><Icon icon="ri:add-line" width="14" height="14" /></template>
+            新增根权限
+          </a-button>
+        </div>
+      </div>
 
-      <a-spin :loading="loading" style="width: 100%;">
-        <a-empty v-if="!loading && treeData.length === 0" description="暂无数据" />
-        <a-tree
-          v-else
-          :data="treeData"
-          :field-names="{
-            key: 'uuid',
-            title: 'name',
-            children: 'children'
-          }"
-          default-expand-all
-          block-node
-          :render-extra="renderExtra"
-        />
-      </a-spin>
-    </a-card>
+      <!-- 内容 -->
+      <div class="sc-page-main" style="padding: 15px;">
+        <a-spin :loading="loading" style="width: 100%;">
+          <a-empty v-if="!loading && treeData.length === 0" description="暂无数据" />
+          <a-tree
+            v-else
+            :data="treeData"
+            :field-names="{
+              key: 'uuid',
+              title: 'name',
+              children: 'children'
+            }"
+            default-expand-all
+            block-node
+            :render-extra="renderExtra"
+          />
+        </a-spin>
+      </div>
+    </div>
 
     <!-- 新增/编辑权限弹窗 -->
     <a-modal
@@ -146,7 +149,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed, h } from 'vue'
 import { Message, Modal } from '@arco-design/web-vue'
-import { IconPlus, IconDelete, IconEdit } from '@arco-design/web-vue/es/icon'
+import { Icon } from '@iconify/vue'
 import { getPermissionTree, createPermission, updatePermission, deletePermission } from '@/api/permission'
 
 const loading = ref(false)
@@ -157,7 +160,7 @@ const editingUuid = ref(null)
 const formRef = ref(null)
 
 const typeLabels = { 1: '目录', 2: '菜单', 3: '按钮', 4: 'API' }
-const typeColors = { 1: '#6366F1', 2: '#00B4FF', 3: '#00CE89', 4: '#FFC800' }
+const typeColors = { 1: '#3B82F6', 2: '#00B4FF', 3: '#00CE89', 4: '#FFC800' }
 
 const formData = reactive({
   name: '',
@@ -201,19 +204,19 @@ function renderExtra(nodeData) {
       size: 'small',
       style: { color: '#00B4FF', marginRight: '4px' },
       onClick: (e) => { e.stopPropagation(); handleAdd(data) }
-    }, [h(IconPlus)]),
+    }, [h(Icon, { icon: 'ri:add-line' })]),
     h('a-button', {
       type: 'text',
       size: 'small',
       style: { color: '#FFC800', marginRight: '4px' },
       onClick: (e) => { e.stopPropagation(); handleEdit(data) }
-    }, [h(IconEdit)]),
+    }, [h(Icon, { icon: 'ri:edit-line' })]),
     h('a-button', {
       type: 'text',
       size: 'small',
       style: { color: '#F53F3F' },
       onClick: (e) => { e.stopPropagation(); handleDelete(data) }
-    }, [h(IconDelete)])
+    }, [h(Icon, { icon: 'ri:delete-bin-line' })])
   ])
 }
 
@@ -317,7 +320,7 @@ onMounted(loadTree)
 }
 
 :deep(.arco-tree-node) {
-  padding: 4px 0;
+  padding: 6px 0;
 }
 
 :deep(.arco-tree-node-title) {
@@ -326,7 +329,7 @@ onMounted(loadTree)
 }
 
 :deep(.arco-tree-node-selected) {
-  background: rgba(99, 102, 241, 0.1) !important;
+  background: rgba(59, 130, 246, 0.08) !important;
 }
 
 .node-extra {

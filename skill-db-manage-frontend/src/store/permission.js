@@ -5,7 +5,12 @@ const componentMap = {
   'system/user/UserList': () => import('@/views/system/user/UserList.vue'),
   'system/role/RoleList': () => import('@/views/system/role/RoleList.vue'),
   'system/permission/PermissionList': () => import('@/views/system/permission/PermissionList.vue'),
-  'dashboard/Dashboard': () => import('@/views/dashboard/Dashboard.vue')
+  'dashboard/Dashboard': () => import('@/views/dashboard/Dashboard.vue'),
+  'skill/SkillList': () => import('@/views/skill/SkillList.vue'),
+  'skill/SkillGroupList': () => import('@/views/skill/SkillGroupList.vue'),
+  'skill/FileManager': () => import('@/views/skill/FileManager.vue'),
+  'profile/Profile': () => import('@/views/profile/Profile.vue'),
+  'settings/ModelConfig': () => import('@/views/settings/ModelConfig.vue')
 }
 
 export const usePermissionStore = defineStore('permission', {
@@ -56,7 +61,7 @@ export const usePermissionStore = defineStore('permission', {
 
         return {
           path: menu.path || '/' + menu.routeName?.toLowerCase(),
-          component: () => import('@/layouts/AdminLayout.vue'),
+          component: { template: '<router-view />' },
           redirect: children[0]?.path,
           meta: {
             title: menu.name,

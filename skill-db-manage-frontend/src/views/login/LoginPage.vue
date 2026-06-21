@@ -132,10 +132,10 @@
     </div>
 
     <!-- 角落装饰 -->
-    <div class="corner-decoration top-left">[</div>
-    <div class="corner-decoration top-right">]</div>
-    <div class="corner-decoration bottom-left">(</div>
-    <div class="corner-decoration bottom-right">)</div>
+    <div class="corner-decoration top-left"><Icon icon="ri:corner-up-left-line" width="32" height="32" /></div>
+    <div class="corner-decoration top-right"><Icon icon="ri:corner-up-right-line" width="32" height="32" /></div>
+    <div class="corner-decoration bottom-left"><Icon icon="ri:corner-down-left-line" width="32" height="32" /></div>
+    <div class="corner-decoration bottom-right"><Icon icon="ri:corner-down-right-line" width="32" height="32" /></div>
   </div>
 </template>
 
@@ -145,6 +145,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { Message } from '@arco-design/web-vue'
 import { useUserStore } from '@/store/user'
 import { usePermissionStore } from '@/store/permission'
+import { setToken } from '@/utils/auth'
 import { Icon } from '@iconify/vue'
 import ParticleBg from './components/ParticleBg.vue'
 import TextScramble from './components/TextScramble.vue'
@@ -172,36 +173,72 @@ onMounted(() => {
 
 async function handlePasswordLogin(loginData) {
   try {
-    await userStore.login(loginData)
+    // ── Mock login: skip API, inject mock data ──
+    setToken('mock_token_skill_admin')
+    userStore.token = 'mock_token_skill_admin'
+    userStore.userInfo = {
+      uuid: 'mock-uuid-001',
+      username: loginData.username || 'admin',
+      nickname: '管理员',
+      avatar: '',
+      email: 'admin@skill.com'
+    }
+    permissionStore.setMenus(mockAdminMenus())
+    permissionStore.setPermissions([
+      'dashboard:view', 'skill:list', 'skill:edit',
+      'system:user:list', 'system:role:list', 'system:permission:list',
+      'profile:view', 'profile:edit'
+    ])
+
     const dynamicRoutes = permissionStore.generateRoutes()
     const rootRoute = router.getRoutes().find(r => r.name === 'Root')
     dynamicRoutes.forEach(route => {
       if (rootRoute) router.addRoute('Root', route)
       else router.addRoute(route)
     })
-    const redirect = route.query.redirect || '/'
-    router.push(redirect)
-    Message.success('登录成功')
+    router.push('/dashboard')
+    Message.success('登录成功（Mock 模式）')
   } catch (e) {
     Message.error(e.message || '登录失败')
   }
 }
 
+function mockAdminMenus() {
+  return [
+    {
+      uuid: 'm1', name: '信息看板', type: 2, path: '/dashboard',
+      component: 'dashboard/Dashboard', routeName: 'Dashboard',
+      icon: 'IconDashboard', keepAlive: 1, hidden: 0
+    },
+    {
+      uuid: 'm2', name: 'Skill 管理', type: 2, path: '/skill',
+      component: 'skill/SkillList', routeName: 'SkillList',
+      icon: 'IconApps', keepAlive: 1, hidden: 0
+    },
+    {
+      uuid: 'm3', name: '权限管理', type: 1, icon: 'IconSafe', hidden: 0,
+      children: [
+        { uuid: 'm3-1', name: '用户管理', type: 2, path: '/system/user', component: 'system/user/UserList', routeName: 'UserList', icon: 'IconUser', keepAlive: 1, hidden: 0 },
+        { uuid: 'm3-2', name: '角色管理', type: 2, path: '/system/role', component: 'system/role/RoleList', routeName: 'RoleList', icon: 'IconUserGroup', keepAlive: 1, hidden: 0 },
+        { uuid: 'm3-3', name: '权限字典', type: 2, path: '/system/permission', component: 'system/permission/PermissionList', routeName: 'PermissionList', icon: 'IconLock', keepAlive: 1, hidden: 0 }
+      ]
+    },
+    {
+      uuid: 'm4', name: '智能模型配置', type: 2, path: '/settings/models',
+      component: 'settings/ModelConfig', routeName: 'ModelConfig',
+      icon: 'IconBrain', keepAlive: 1, hidden: 0
+    },
+    {
+      uuid: 'm5', name: '个人信息', type: 2, path: '/profile',
+      component: 'profile/Profile', routeName: 'Profile',
+      icon: 'IconUser', keepAlive: 1, hidden: 0
+    }
+  ]
+}
+
 async function handleSmsLogin(loginData) {
-  try {
-    await userStore.smsLogin(loginData)
-    const dynamicRoutes = permissionStore.generateRoutes()
-    const rootRoute = router.getRoutes().find(r => r.name === 'Root')
-    dynamicRoutes.forEach(route => {
-      if (rootRoute) router.addRoute('Root', route)
-      else router.addRoute(route)
-    })
-    const redirect = route.query.redirect || '/'
-    router.push(redirect)
-    Message.success('登录成功')
-  } catch (e) {
-    Message.error(e.message || '登录失败')
-  }
+  // Same mock flow
+  await handlePasswordLogin(loginData)
 }
 </script>
 
@@ -244,8 +281,8 @@ async function handleSmsLogin(loginData) {
   height: 400px;
   background: radial-gradient(
     ellipse at center,
-    rgba(99, 102, 241, 0.06) 0%,
-    rgba(99, 102, 241, 0.03) 25%,
+    rgba(59, 130, 246, 0.06) 0%,
+    rgba(59, 130, 246, 0.03) 25%,
     rgba(0, 0, 0, 0) 70%
   );
   pointer-events: none;
@@ -274,7 +311,7 @@ async function handleSmsLogin(loginData) {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
 }
 
 .main-title {
@@ -302,14 +339,14 @@ async function handleSmsLogin(loginData) {
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  border: 1px solid rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.1);
   border-radius: 20px;
-  background: rgba(99, 102, 241, 0.03);
+  background: rgba(59, 130, 246, 0.03);
   animation: fadeIn 0.6s ease both;
 }
 
 .feature-icon {
-  color: #6366F1;
+  color: #3B82F6;
   font-size: 10px;
 }
 
@@ -362,8 +399,8 @@ async function handleSmsLogin(loginData) {
   /* 顶部内侧微光 — 模拟环境光打在面板顶部 */
   background: linear-gradient(
     135deg,
-    rgba(120, 100, 255, 0.04) 0%,
-    rgba(120, 100, 255, 0.01) 30%,
+    rgba(59, 130, 246, 0.04) 0%,
+    rgba(59, 130, 246, 0.01) 30%,
     transparent 60%
   );
 }
@@ -381,8 +418,8 @@ async function handleSmsLogin(loginData) {
 
 .logo-icon {
   font-size: 24px;
-  color: #6366F1;
-  text-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  color: #3B82F6;
+  text-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 
 .logo-text {
@@ -424,8 +461,8 @@ async function handleSmsLogin(loginData) {
 }
 
 .tab-btn.active {
-  background: rgba(99, 102, 241, 0.15);
-  color: #6366F1;
+  background: rgba(59, 130, 246, 0.15);
+  color: #3B82F6;
 }
 
 .tab-btn:hover:not(.active) {
@@ -445,18 +482,15 @@ async function handleSmsLogin(loginData) {
 /* 角落装饰 */
 .corner-decoration {
   position: fixed;
-  font-size: 40px;
-  font-weight: 100;
-  color: rgba(99, 102, 241, 0.08);
-  font-family: 'Courier New', monospace;
+  color: rgba(59, 130, 246, 0.1);
   z-index: 10;
   pointer-events: none;
 }
 
-.corner-decoration.top-left { top: 30px; left: 30px; }
-.corner-decoration.top-right { top: 30px; right: 30px; }
-.corner-decoration.bottom-left { bottom: 30px; left: 30px; }
-.corner-decoration.bottom-right { bottom: 30px; right: 30px; }
+.corner-decoration.top-left { top: 24px; left: 24px; }
+.corner-decoration.top-right { top: 24px; right: 24px; }
+.corner-decoration.bottom-left { bottom: 24px; left: 24px; }
+.corner-decoration.bottom-right { bottom: 24px; right: 24px; }
 
 /* 动画 */
 @keyframes fadeIn {

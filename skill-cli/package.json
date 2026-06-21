@@ -1,0 +1,17 @@
+{
+  "name": "skill-cli",
+  "version": "1.0.0",
+  "description": "Skill DB Manager CLI - 技能组管理命令行工具",
+  "type": "module",
+  "bin": {
+    "skill": "./bin/cli.js"
+  },
+  "scripts": {
+    "start": "node bin/cli.js"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "axios": "^1.7.2",
+    "commander": "^12.1.0"
+  }
+}

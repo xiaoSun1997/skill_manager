@@ -165,7 +165,7 @@ async function handleSubmit() {
   top: 10px;
   transform: translateY(0);
   font-size: 11px;
-  color: rgba(99, 102, 241, 0.7);
+  color: rgba(59, 130, 246, 0.7);
 }
 
 .input-border {
@@ -174,7 +174,7 @@ async function handleSubmit() {
   left: 50%;
   width: 0;
   height: 2px;
-  background: #6366F1;
+  background: #3B82F6;
   transition: all 0.3s ease;
   border-radius: 0 0 8px 8px;
   z-index: 3;
@@ -195,7 +195,7 @@ async function handleSubmit() {
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.05);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.05);
 }
 
 .input-field.focused .input-glow {
@@ -208,8 +208,8 @@ async function handleSubmit() {
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  color: #6366F1;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: #3B82F6;
   font-size: 12px;
   padding: 6px 12px;
   border-radius: 6px;
@@ -221,8 +221,8 @@ async function handleSubmit() {
 }
 
 .send-code-btn:hover:not(:disabled) {
-  background: rgba(99, 102, 241, 0.1);
-  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.4);
 }
 
 .send-code-btn:disabled {
@@ -243,7 +243,7 @@ async function handleSubmit() {
   height: 48px;
   border: none;
   border-radius: 8px;
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  background: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%);
   color: #fff;
   font-size: 15px;
   font-weight: 500;
@@ -261,7 +261,7 @@ async function handleSubmit() {
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.3);
 }
 
 .submit-btn:active:not(:disabled) {

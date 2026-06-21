@@ -62,6 +62,7 @@
 
 <script setup>
 import { reactive, ref } from 'vue'
+import { Message } from '@arco-design/web-vue'
 import { Icon } from '@iconify/vue'
 
 const emit = defineEmits(['login'])
@@ -86,13 +87,13 @@ async function handleSubmit() {
   if (!validate()) return
   loading.value = true
   try {
-    emit('login', {
+    await emit('login', {
       username: formData.username,
       password: formData.password,
       loginType: 'password'
     })
   } catch (e) {
-    // handled by parent
+    Message.error(e.message || '登录失败')
   } finally {
     loading.value = false
   }
@@ -145,7 +146,7 @@ async function handleSubmit() {
   top: 10px;
   transform: translateY(0);
   font-size: 11px;
-  color: rgba(99, 102, 241, 0.7);
+  color: rgba(59, 130, 246, 0.7);
 }
 
 .input-border {
@@ -154,7 +155,7 @@ async function handleSubmit() {
   left: 50%;
   width: 0;
   height: 2px;
-  background: #6366F1;
+  background: #3B82F6;
   transition: all 0.3s ease;
   border-radius: 0 0 8px 8px;
   z-index: 3;
@@ -175,7 +176,7 @@ async function handleSubmit() {
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.05);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.05);
 }
 
 .input-field.focused .input-glow {
@@ -239,8 +240,8 @@ async function handleSubmit() {
 }
 
 .remember-me input:checked + .checkmark {
-  background: #6366F1;
-  border-color: #6366F1;
+  background: #3B82F6;
+  border-color: #3B82F6;
 }
 
 .remember-me input:checked + .checkmark::after {
@@ -266,7 +267,7 @@ async function handleSubmit() {
 }
 
 .forgot-link:hover {
-  color: rgba(99, 102, 241, 0.7);
+  color: rgba(59, 130, 246, 0.7);
 }
 
 .submit-btn {
@@ -274,7 +275,7 @@ async function handleSubmit() {
   height: 48px;
   border: none;
   border-radius: 8px;
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  background: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%);
   color: #fff;
   font-size: 15px;
   font-weight: 500;
@@ -291,7 +292,7 @@ async function handleSubmit() {
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.3);
 }
 
 .submit-btn:active:not(:disabled) {

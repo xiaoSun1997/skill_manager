@@ -1,70 +1,64 @@
 <template>
   <div class="role-list">
-    <a-card>
-      <template #title>
-        <a-space>
-          <icon-team />
-          <span>角色管理</span>
-        </a-space>
-      </template>
-      <template #extra>
-        <a-button type="primary" @click="handleAdd">
-          <template #icon><icon-plus /></template>
-          新增角色
-        </a-button>
-      </template>
+    <div class="sc-page-container">
+      <!-- 工具栏 -->
+      <div class="sc-page-header">
+        <div class="toolbar-left">
+          <span style="font-size: 14px; font-weight: 500; color: var(--text-primary);">角色管理</span>
+        </div>
+        <div class="toolbar-right">
+          <a-button type="primary" @click="handleAdd">
+            <template #icon><Icon icon="ri:add-line" width="14" height="14" /></template>
+            新增角色
+          </a-button>
+        </div>
+      </div>
 
-      <a-spin :loading="loading" style="width: 100%;">
-        <a-table
-          :data="roleList"
-          :pagination="false"
-          :bordered="false"
-          :stripe="true"
-          row-key="uuid"
-        >
-          <template #columns>
-            <a-table-column title="角色名称" data-index="name" :width="200">
-              <template #cell="{ record }">
-                <a-tag color="orange">{{ record.name }}</a-tag>
-              </template>
-            </a-table-column>
-            <a-table-column title="角色描述" data-index="description" />
-            <a-table-column title="状态" data-index="status" :width="100">
-              <template #cell="{ record }">
-                <a-tag :color="record.status === 1 ? 'green' : 'red'">
-                  {{ record.status === 1 ? '启用' : '禁用' }}
-                </a-tag>
-              </template>
-            </a-table-column>
-            <a-table-column title="创建时间" data-index="createdAt" :width="180">
-              <template #cell="{ record }">
-                {{ record.createdAt ? formatTime(record.createdAt) : '-' }}
-              </template>
-            </a-table-column>
-            <a-table-column title="操作" :width="280" fixed="right">
-              <template #cell="{ record }">
-                <a-space>
-                  <a-button type="text" size="small" @click="handleEdit(record)">
-                    <template #icon><icon-edit /></template>
-                    编辑
-                  </a-button>
-                  <a-button type="text" size="small" @click="handleAssignPermission(record)">
-                    <template #icon><icon-safe /></template>
-                    分配权限
-                  </a-button>
-                  <a-popconfirm content="确认删除该角色？" @ok="handleDelete(record)">
-                    <a-button type="text" size="small" status="danger">
-                      <template #icon><icon-delete /></template>
-                      删除
-                    </a-button>
-                  </a-popconfirm>
-                </a-space>
-              </template>
-            </a-table-column>
-          </template>
-        </a-table>
-      </a-spin>
-    </a-card>
+      <!-- 表格 -->
+      <div class="sc-page-main">
+        <a-spin :loading="loading" style="width: 100%;">
+          <a-table
+            :data="roleList"
+            :pagination="false"
+            :bordered="{ cell: false }"
+            :stripe="true"
+            row-key="uuid"
+          >
+            <template #columns>
+              <a-table-column title="角色名称" data-index="name" :width="200">
+                <template #cell="{ record }">
+                  <a-tag color="orange" size="small">{{ record.name }}</a-tag>
+                </template>
+              </a-table-column>
+              <a-table-column title="角色描述" data-index="description" />
+              <a-table-column title="状态" data-index="status" :width="100">
+                <template #cell="{ record }">
+                  <a-tag :color="record.status === 1 ? 'green' : 'red'" size="small">
+                    {{ record.status === 1 ? '启用' : '禁用' }}
+                  </a-tag>
+                </template>
+              </a-table-column>
+              <a-table-column title="创建时间" data-index="createdAt" :width="180">
+                <template #cell="{ record }">
+                  {{ record.createdAt ? formatTime(record.createdAt) : '-' }}
+                </template>
+              </a-table-column>
+              <a-table-column title="操作" :width="220" fixed="right" align="right">
+                <template #cell="{ record }">
+                  <a-button-group>
+                    <a-button type="text" size="mini" @click="handleEdit(record)">编辑</a-button>
+                    <a-button type="text" size="mini" @click="handleAssignPermission(record)">分配权限</a-button>
+                    <a-popconfirm content="确认删除该角色？" @ok="handleDelete(record)">
+                      <a-button type="text" size="mini" status="danger">删除</a-button>
+                    </a-popconfirm>
+                  </a-button-group>
+                </template>
+              </a-table-column>
+            </template>
+          </a-table>
+        </a-spin>
+      </div>
+    </div>
 
     <!-- 新增/编辑弹窗 -->
     <RoleForm :visible="formVisible" :role="editingRole" @close="formVisible = false" @success="loadRoles" />
@@ -102,6 +96,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { Message } from '@arco-design/web-vue'
+import { Icon } from '@iconify/vue'
 import { getRoleList, deleteRole, getRolePermissions, assignRolePermissions, getAllPermissionTree, getRolePermissionTree } from '@/api/role'
 import RoleForm from './RoleForm.vue'
 

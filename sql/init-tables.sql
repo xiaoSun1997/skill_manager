@@ -96,3 +96,37 @@ CREATE TABLE IF NOT EXISTS sys_login_log (
     fail_reason VARCHAR(255) DEFAULT NULL COMMENT '失败原因',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
+
+-- 技能组表
+CREATE TABLE IF NOT EXISTS skill_group (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '内部自增主键',
+    uuid VARCHAR(32) NOT NULL COMMENT '对外UUID',
+    name VARCHAR(100) NOT NULL COMMENT '技能组名称',
+    description VARCHAR(500) DEFAULT NULL COMMENT '描述',
+    folder_names VARCHAR(2000) NOT NULL DEFAULT '["references","scripts","templates"]' COMMENT '子文件夹名JSON数组',
+    owner_id BIGINT DEFAULT NULL COMMENT '负责人ID，关联sys_user.id',
+    status TINYINT DEFAULT 1 COMMENT '状态: 1=启用 0=删除',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY uk_sg_uuid (uuid),
+    UNIQUE KEY uk_sg_name (name),
+    KEY idx_sg_owner (owner_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='技能组表';
+
+-- 技能文件表
+CREATE TABLE IF NOT EXISTS skill_file (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '内部自增主键',
+    uuid VARCHAR(32) NOT NULL COMMENT '对外UUID',
+    group_id BIGINT NOT NULL COMMENT '关联skill_group.id',
+    folder_name VARCHAR(100) NOT NULL COMMENT '所属子文件夹名',
+    file_name VARCHAR(255) NOT NULL COMMENT '原始文件名',
+    oss_key VARCHAR(500) NOT NULL COMMENT 'OSS对象Key',
+    file_size BIGINT DEFAULT 0 COMMENT '文件大小(字节)',
+    file_type VARCHAR(100) DEFAULT NULL COMMENT 'MIME类型',
+    status TINYINT DEFAULT 1 COMMENT '状态: 1=启用 0=删除',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY uk_sf_uuid (uuid),
+    KEY idx_sf_group_id (group_id),
+    CONSTRAINT fk_sf_group FOREIGN KEY (group_id) REFERENCES skill_group(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='技能文件表';

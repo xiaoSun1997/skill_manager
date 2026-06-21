@@ -1,142 +1,113 @@
 <template>
   <div class="dashboard">
-    <a-row :gutter="[16, 16]">
-      <a-col :span="6">
-        <a-card class="stat-card" hoverable>
-          <div class="stat-content">
-            <div class="stat-info">
-              <div class="stat-label">用户总数</div>
-              <div class="stat-value">{{ stats.users }}</div>
-            </div>
-            <div class="stat-icon" style="background: rgba(99,102,241,0.1); color: #6366F1;">
-              <icon-user />
-            </div>
+    <!-- 区块1：人员信息卡片（横向布局） -->
+    <div class="sc-page-container" style="margin-bottom: 15px;">
+      <div style="padding: 20px; display: flex; align-items: center; gap: 20px;">
+        <a-avatar :size="64" :style="{ backgroundColor: 'var(--primary-color)', fontSize: '24px' }">
+          {{ avatarText }}
+        </a-avatar>
+        <div style="flex: 1;">
+          <h2 style="color: var(--text-primary); font-size: 18px; font-weight: 600; margin: 0 0 6px;">
+            {{ userStore.nickname || '管理员' }}
+          </h2>
+          <a-tag color="arcoblue" size="small">系统管理员</a-tag>
+          <div style="display: flex; gap: 20px; margin-top: 10px;">
+            <span class="meta-item">
+              <Icon icon="ri:mail-line" width="13" height="13" />
+              admin@skill.com
+            </span>
+            <span class="meta-item">
+              <Icon icon="ri:time-line" width="13" height="13" />
+              最后登录 2026-06-14
+            </span>
           </div>
-        </a-card>
-      </a-col>
-      <a-col :span="6">
-        <a-card class="stat-card" hoverable>
-          <div class="stat-content">
-            <div class="stat-info">
-              <div class="stat-label">角色数量</div>
-              <div class="stat-value">{{ stats.roles }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 区块2：Skill Group 卡片 -->
+    <div class="section-title">
+      <Icon icon="ri:apps-line" width="16" height="16" />
+      <span>Skill 分组</span>
+    </div>
+    <a-row :gutter="[15, 15]">
+      <a-col :span="8" v-for="group in skillGroups" :key="group.name">
+        <div class="sc-page-container skill-card">
+          <div style="padding: 15px;">
+            <div class="group-header">
+              <div class="group-icon" :style="{ background: group.color }">
+                <Icon :icon="group.icon" width="20" height="20" />
+              </div>
+              <div class="group-info">
+                <div class="group-name">{{ group.name }}</div>
+                <div class="group-count">{{ group.count }} Skills</div>
+              </div>
             </div>
-            <div class="stat-icon" style="background: rgba(0,180,255,0.1); color: #00B4FF;">
-              <icon-team />
+            <div style="margin: 10px 0 8px;">
+              <a-tag :color="group.statusColor" size="small">{{ group.status }}</a-tag>
             </div>
+            <div class="group-desc">{{ group.desc }}</div>
           </div>
-        </a-card>
-      </a-col>
-      <a-col :span="6">
-        <a-card class="stat-card" hoverable>
-          <div class="stat-content">
-            <div class="stat-info">
-              <div class="stat-label">权限项</div>
-              <div class="stat-value">{{ stats.permissions }}</div>
-            </div>
-            <div class="stat-icon" style="background: rgba(0,206,137,0.1); color: #00CE89;">
-              <icon-safe />
-            </div>
-          </div>
-        </a-card>
-      </a-col>
-      <a-col :span="6">
-        <a-card class="stat-card" hoverable>
-          <div class="stat-content">
-            <div class="stat-info">
-              <div class="stat-label">今日登录</div>
-              <div class="stat-value">{{ stats.logins }}</div>
-            </div>
-            <div class="stat-icon" style="background: rgba(255,200,0,0.1); color: #FFC800;">
-              <icon-clock-circle />
-            </div>
-          </div>
-        </a-card>
+        </div>
       </a-col>
     </a-row>
 
-    <a-row :gutter="[16, 16]" style="margin-top: 16px;">
-      <a-col :span="16">
-        <a-card title="快速开始" :header-style="{ borderBottom: '1px solid var(--color-border)' }">
-          <a-space direction="vertical" fill>
-            <a-alert type="info" show-icon>
-              <template #title>
-                欢迎使用 Skill 管理系统！请通过左侧菜单导航开始管理。
-              </template>
-            </a-alert>
-            <a-row :gutter="[12, 12]" style="margin-top: 12px;">
-              <a-col :span="8" v-for="item in quickActions" :key="item.title">
-                <a-card
-                  class="action-card"
-                  hoverable
-                  @click="item.action"
-                >
-                  <div class="action-content">
-                    <div class="action-icon" :style="{ color: item.color }">
-                      <component :is="item.icon" />
-                    </div>
-                    <div class="action-label">{{ item.title }}</div>
-                    <div class="action-desc">{{ item.desc }}</div>
-                  </div>
-                </a-card>
-              </a-col>
-            </a-row>
-          </a-space>
-        </a-card>
-      </a-col>
-      <a-col :span="8">
-        <a-card title="系统信息" :header-style="{ borderBottom: '1px solid var(--color-border)' }">
-          <a-descriptions :data="systemInfo" layout="horizontal" :column="1" size="small" />
-        </a-card>
-      </a-col>
-    </a-row>
+    <!-- 区块3：知识图谱（占位） -->
+    <div class="section-title" style="margin-top: 15px;">
+      <Icon icon="ri:git-branch-line" width="16" height="16" />
+      <span>知识图谱</span>
+    </div>
+    <div class="sc-page-container">
+      <div class="graph-placeholder">
+        <div class="graph-icon">
+          <Icon icon="ri:node-tree" width="48" height="48" />
+        </div>
+        <h3>知识图谱 · 即将上线</h3>
+        <p>通过 Graph RAG 提取 Neo4j 图数据，可视化 Skill 之间的关联关系</p>
+        <a-tag color="arcoblue" size="small">开发中</a-tag>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useUserStore } from '@/store/user'
+import { Icon } from '@iconify/vue'
 
-const router = useRouter()
+const userStore = useUserStore()
 
-const stats = reactive({
-  users: '--',
-  roles: '--',
-  permissions: '--',
-  logins: '--'
-})
+const avatarText = userStore.nickname?.charAt(0)?.toUpperCase() || 'A'
 
-const systemInfo = reactive([
-  { label: '系统版本', value: 'v1.0.0' },
-  { label: '前端框架', value: 'Vue 3 + Arco Design' },
-  { label: '后端框架', value: 'Spring Boot 3.x' },
-  { label: '数据库', value: 'MySQL 8.x + Redis' },
-  { label: '认证方式', value: 'JWT' }
-])
-
-const quickActions = [
+const skillGroups = reactive([
   {
-    title: '用户管理',
-    desc: '管理系统用户账号',
-    icon: 'icon-user',
-    color: '#6366F1',
-    action: () => router.push('/system/user')
+    name: 'NLP 处理引擎',
+    count: 12,
+    icon: 'ri:brain-line',
+    color: 'rgba(59,130,246,0.10)',
+    status: '活跃',
+    statusColor: 'green',
+    desc: '自然语言处理相关 Skill 集合，包含分词、NER、情感分析等能力'
   },
   {
-    title: '角色管理',
-    desc: '配置角色与权限',
-    icon: 'icon-team',
-    color: '#00B4FF',
-    action: () => router.push('/system/role')
+    name: '数据分析工具',
+    count: 8,
+    icon: 'ri:bar-chart-grouped-line',
+    color: 'rgba(0,180,255,0.15)',
+    status: '维护中',
+    statusColor: 'blue',
+    desc: '数据清洗、可视化、统计分析类 Skill 工具集'
   },
   {
-    title: '权限管理',
-    desc: '维护权限字典',
-    icon: 'icon-safe',
-    color: '#00CE89',
-    action: () => router.push('/system/permission')
+    name: '自动化工作流',
+    count: 5,
+    icon: 'ri:git-branch-line',
+    color: 'rgba(0,206,137,0.15)',
+    status: '新建',
+    statusColor: 'orange',
+    desc: 'CI/CD 集成、定时任务、触发式流程编排 Skill'
   }
-]
+])
 </script>
 
 <style scoped>
@@ -144,78 +115,80 @@ const quickActions = [
   padding: 0;
 }
 
-.stat-card {
-  border-radius: 12px;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.stat-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.stat-info {
-  flex: 1;
-}
-
-.stat-label {
-  font-size: 13px;
-  color: var(--color-text-3);
-  margin-bottom: 8px;
-}
-
-.stat-value {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--color-text-1);
-}
-
-.stat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+/* ── Section title ── */
+.section-title {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 24px;
-}
-
-.action-card {
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.action-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-}
-
-.action-content {
-  text-align: center;
-  padding: 12px 0;
-}
-
-.action-icon {
-  font-size: 32px;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
   margin-bottom: 12px;
 }
 
-.action-label {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--color-text-1);
-  margin-bottom: 4px;
+/* ── 元信息 ── */
+.meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-tertiary);
+  font-size: 12px;
 }
 
-.action-desc {
+/* ── Skill Group 卡片 ── */
+.skill-card {
+  border: 1px solid var(--card-border);
+}
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.group-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+}
+.group-name {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+.group-count {
+  color: var(--text-tertiary);
   font-size: 12px;
-  color: var(--color-text-3);
+}
+.group-desc {
+  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* ── 知识图谱占位 ── */
+.graph-placeholder {
+  text-align: center;
+  padding: 60px 20px;
+}
+.graph-icon {
+  color: var(--primary-light-1);
+  margin-bottom: 12px;
+}
+.graph-placeholder h3 {
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+.graph-placeholder p {
+  color: var(--text-tertiary);
+  font-size: 13px;
+  margin: 0 0 12px;
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
 }
 </style>

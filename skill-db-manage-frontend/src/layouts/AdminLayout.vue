@@ -1,139 +1,113 @@
 <template>
-  <div class="admin-layout dark-theme">
-    <a-layout style="height: 100vh">
-      <!-- 侧边栏 -->
-      <a-layout-sider
-        :collapsed="collapsed"
-        :width="240"
-        :collapsed-width="64"
-        theme="dark"
-        :style="{
-          background: '#141414',
-          borderRight: '1px solid rgba(255,255,255,0.06)'
-        }"
-      >
-        <div class="logo-container">
-          <span class="logo-icon">
-            <Icon icon="ri:terminal-window-line" width="22" height="22" />
-          </span>
-          <span v-show="!collapsed" class="logo-text">Skill Manager</span>
+  <div class="admin-layout">
+    <!-- 深色顶栏 Header - 全宽横跨 -->
+    <div class="layout-header">
+      <div class="header-left">
+        <div class="logo-bar">
+          <Icon icon="ri:terminal-window-line" width="24" height="24" class="logo-icon" />
+          <span class="logo-text">Skill Manager</span>
         </div>
-
-        <a-menu
-          :style="{ background: 'transparent', borderRight: 'none' }"
-          :collapsed="collapsed"
-          :selected-keys="selectedKeys"
-          :open-keys="openKeys"
-          show-collapse-button
-          @menu-item-click="handleMenuClick"
-          @collapse="collapsed = !collapsed"
-          theme="dark"
-          auto-open-selected-tree
+      </div>
+      <div class="header-right">
+        <a-button
+          type="outline"
+          size="small"
+          class="chat-nav-btn"
+          @click="router.push('/chat')"
         >
-          <template v-for="item in menuTree" :key="item.meta?.uuid || item.name">
-            <!-- 有子菜单的目录/菜单 -->
-            <a-sub-menu
-              v-if="item.children && item.children.length > 0"
-              :key="item.meta?.uuid || item.name"
-            >
-              <template #title>
-                <span v-if="item.meta?.icon" :class="item.meta.icon" style="font-size: 16px; margin-right: 10px;">
-                  <component :is="item.meta.icon" />
-                </span>
-                <span v-else>
-                  <icon-folder />
-                </span>
-                <span>{{ item.meta?.title || item.name }}</span>
-              </template>
-              <MenuItem v-for="child in item.children" :key="child.meta?.uuid || child.name" :menu="child" />
-            </a-sub-menu>
-
-            <!-- 叶子菜单 -->
-            <a-menu-item v-else :key="item.meta?.uuid || item.name">
-              <template #icon>
-                <span v-if="item.meta?.icon" style="font-size: 16px;">
-                  <component :is="item.meta.icon" />
-                </span>
-                <icon-list v-else />
-              </template>
-              {{ item.meta?.title || item.name }}
-            </a-menu-item>
+          <Icon icon="ri:chat-3-line" width="14" height="14" />
+          对话模式
+        </a-button>
+        <a-dropdown trigger="click">
+          <div class="user-bar">
+            <a-avatar :size="30" class="user-avatar">{{ avatarText }}</a-avatar>
+            <span class="user-name">{{ userStore.nickname }}</span>
+            <Icon icon="ri:arrow-down-s-line" width="14" height="14" />
+          </div>
+          <template #content>
+            <a-doption @click="router.push('/profile')">
+              <Icon icon="ri:user-3-line" width="14" height="14" />
+              个人信息
+            </a-doption>
+            <a-doption divided @click="handleLogout">
+              <Icon icon="ri:logout-box-line" width="14" height="14" />
+              退出登录
+            </a-doption>
           </template>
-        </a-menu>
-      </a-layout-sider>
+        </a-dropdown>
+      </div>
+    </div>
 
-      <!-- 右侧内容 -->
-      <a-layout>
-        <!-- 顶部导航 -->
-        <a-layout-header
-          class="layout-header"
-          :style="{
-            background: '#141414',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-            height: '56px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 24px'
-          }"
-        >
-          <div class="header-left">
+    <!-- 下方区域：侧边栏 + 内容 -->
+    <div class="layout-body">
+      <!-- 白色侧边栏 -->
+      <div :class="['layout-sider', { collapsed: collapsed }]">
+        <div class="sider-scroll">
+          <a-menu
+            class="sider-menu"
+            :collapsed="collapsed"
+            :selected-keys="selectedKeys"
+            @menu-item-click="handleMenuClick"
+            auto-open-selected-tree
+          >
+            <template v-for="item in menuTree" :key="item.meta?.uuid || item.name">
+              <a-sub-menu
+                v-if="item.children && item.children.length > 0"
+                :key="item.meta?.uuid || item.name"
+              >
+                <template #title>
+                  <span class="menu-icon">
+                    <Icon :icon="iconMap[item.meta?.icon] || 'ri:folder-line'" width="16" height="16" />
+                  </span>
+                  <span v-show="!collapsed">{{ item.meta?.title || item.name }}</span>
+                </template>
+                <a-menu-item v-for="child in item.children" :key="child.meta?.uuid || child.name">
+                  <template #icon>
+                    <Icon :icon="iconMap[child.meta?.icon] || 'ri:file-line'" width="16" height="16" />
+                  </template>
+                  {{ child.meta?.title || child.name }}
+                </a-menu-item>
+              </a-sub-menu>
+
+              <a-menu-item v-else :key="item.meta?.uuid || item.name">
+                <template #icon>
+                  <Icon :icon="iconMap[item.meta?.icon] || 'ri:file-line'" width="16" height="16" />
+                </template>
+                <span v-show="!collapsed">{{ item.meta?.title || item.name }}</span>
+              </a-menu-item>
+            </template>
+          </a-menu>
+        </div>
+        <div class="sider-bottom" @click="collapsed = !collapsed">
+          <Icon :icon="collapsed ? 'ri:menu-unfold-line' : 'ri:menu-fold-line'" width="16" height="16" />
+        </div>
+      </div>
+
+      <!-- 右侧内容区 -->
+      <div class="layout-main">
+        <!-- Topbar 面包屑栏 -->
+        <div class="layout-topbar">
+          <div class="topbar-left">
             <a-breadcrumb>
               <a-breadcrumb-item>
-                <icon-home />
+                <Icon icon="ri:home-4-line" width="14" height="14" />
               </a-breadcrumb-item>
               <a-breadcrumb-item>{{ currentTitle }}</a-breadcrumb-item>
             </a-breadcrumb>
           </div>
+        </div>
 
-          <div class="header-right">
-            <a-dropdown trigger="click">
-              <a-avatar
-                :style="{
-                  backgroundColor: '#6366F1',
-                  cursor: 'pointer',
-                  verticalAlign: 'middle'
-                }"
-              >
-                {{ avatarText }}
-              </a-avatar>
-              <template #content>
-                <a-doption>
-                  <icon-user />
-                  <span>个人信息</span>
-                </a-doption>
-                <a-doption>
-                  <icon-settings />
-                  <span>系统设置</span>
-                </a-doption>
-                <a-doption divided @click="handleLogout">
-                  <icon-export />
-                  <span>退出登录</span>
-                </a-doption>
-              </template>
-            </a-dropdown>
-            <span class="username">{{ userStore.nickname }}</span>
-          </div>
-        </a-layout-header>
-
-        <!-- 内容区域 -->
-        <a-layout-content
-          class="layout-content"
-          :style="{
-            background: '#0f0f0f',
-            padding: '20px 24px',
-            overflow: 'auto'
-          }"
-        >
+        <!-- Content -->
+        <div class="layout-content">
           <router-view />
-        </a-layout-content>
-      </a-layout>
-    </a-layout>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Modal } from '@arco-design/web-vue'
 import { useUserStore } from '@/store/user'
@@ -146,6 +120,23 @@ const userStore = useUserStore()
 const permissionStore = usePermissionStore()
 
 const collapsed = ref(false)
+
+// Map Arco icon names → Iconify ri: icons
+const iconMap = {
+  IconDashboard: 'ri:dashboard-line',
+  IconApps: 'ri:apps-line',
+  IconSafe: 'ri:shield-check-line',
+  IconBrain: 'ri:brain-line',
+  IconUser: 'ri:user-3-line',
+  IconUserGroup: 'ri:group-line',
+  IconLock: 'ri:lock-line',
+  IconSettings: 'ri:settings-3-line',
+  IconList: 'ri:list-check-2',
+  IconCode: 'ri:code-box-line',
+  IconFolder: 'ri:folder-line',
+  IconFile: 'ri:file-line',
+  IconMenu: 'ri:menu-line'
+}
 
 const selectedKeys = computed(() => {
   return route.meta?.uuid ? [route.meta.uuid] : []
@@ -165,7 +156,6 @@ const menuTree = computed(() => {
 })
 
 function handleMenuClick(key) {
-  // 找到对应的路由并跳转
   const allRoutes = router.getRoutes()
   for (const r of allRoutes) {
     if (r.meta?.uuid === key && r.path) {
@@ -190,41 +180,47 @@ function handleLogout() {
 </script>
 
 <style scoped>
+/* ── 根布局 ── */
 .admin-layout {
   height: 100vh;
-}
-
-.admin-layout.dark-theme {
-  background: #0f0f0f;
-}
-
-.logo-container {
-  height: 56px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.logo-icon {
-  font-size: 22px;
-  color: #6366F1;
-  display: flex;
-  align-items: center;
-}
-
-.logo-text {
-  font-size: 16px;
-  font-weight: 700;
+/* ── 深色顶栏 Header ── */
+.layout-header {
+  height: var(--header-height);
+  background: var(--header-bg);
   color: #fff;
-  letter-spacing: 1px;
-  white-space: nowrap;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  flex-shrink: 0;
+  z-index: 100;
 }
 
 .header-left {
   display: flex;
   align-items: center;
+}
+
+.logo-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  color: var(--primary-color);
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 0.5px;
 }
 
 .header-right {
@@ -233,71 +229,150 @@ function handleLogout() {
   gap: 12px;
 }
 
-.username {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
+/* 对话模式按钮 - 深色Header中的样式 */
+.chat-nav-btn {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+.chat-nav-btn:hover {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.15) !important;
 }
 
-.layout-content {
-  min-height: calc(100vh - 56px);
+/* 用户栏 */
+.user-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.user-bar:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
-:deep(.arco-layout-sider-trigger) {
-  background: #1a1a1a !important;
-  color: rgba(255, 255, 255, 0.5) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+.user-avatar {
+  background-color: var(--primary-color);
 }
 
-:deep(.arco-menu-dark) {
+.user-name {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ── 下方主体区域 ── */
+.layout-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── 白色侧边栏 ── */
+.layout-sider {
+  width: var(--sider-width);
+  background: var(--sider-bg);
+  box-shadow: var(--sider-shadow);
+  border-right: 1px solid var(--sider-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: width 0.3s;
+  z-index: 50;
+  overflow: hidden;
+}
+
+.layout-sider.collapsed {
+  width: var(--sider-collapsed-width);
+}
+
+.sider-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sider-bottom {
+  height: 51px;
+  border-top: 1px solid var(--sider-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--sider-text);
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+.sider-bottom:hover {
+  color: var(--primary-color);
+}
+
+/* 侧边栏 Menu */
+.sider-menu {
   background: transparent !important;
+  border-right: none !important;
 }
 
-:deep(.arco-menu-dark .arco-menu-item) {
-  color: rgba(255, 255, 255, 0.65);
+:deep(.arco-menu-item) {
+  color: var(--sider-text);
+}
+:deep(.arco-menu-item:hover) {
+  background: var(--sider-item-hover) !important;
+  color: var(--sider-text-active);
+}
+:deep(.arco-menu-item.arco-menu-selected) {
+  background: var(--sider-item-selected) !important;
+  color: var(--primary-color);
+  font-weight: 500;
+}
+:deep(.arco-menu-inline-header) {
+  color: var(--sider-text);
+}
+:deep(.arco-menu-inline-header:hover) {
+  background: var(--sider-item-hover) !important;
+  color: var(--sider-text-active);
 }
 
-:deep(.arco-menu-dark .arco-menu-item:hover) {
-  background: rgba(255, 255, 255, 0.06) !important;
-  color: #fff;
+.menu-icon {
+  margin-right: 8px;
+  display: inline-flex;
+  align-items: center;
 }
 
-:deep(.arco-menu-dark .arco-menu-item.arco-menu-selected) {
-  background: rgba(99, 102, 241, 0.15) !important;
-  color: #6366F1;
+/* ── 右侧主体 ── */
+.layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
 }
 
-:deep(.arco-menu-dark .arco-menu-inline-header) {
-  color: rgba(255, 255, 255, 0.65);
+/* ── Topbar 面包屑栏 ── */
+.layout-topbar {
+  height: var(--topbar-height);
+  background: var(--topbar-bg);
+  border-bottom: 1px solid var(--topbar-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  flex-shrink: 0;
 }
 
-:deep(.arco-menu-dark .arco-menu-inline-header:hover) {
-  background: rgba(255, 255, 255, 0.04) !important;
-  color: #fff;
+.topbar-left {
+  display: flex;
+  align-items: center;
 }
 
-:deep(.arco-breadcrumb) {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-:deep(.arco-breadcrumb .arco-breadcrumb-item) {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-:deep(.arco-breadcrumb .arco-breadcrumb-item:last-child) {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-:deep(.arco-dropdown-menu) {
-  background: #1a1a1a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-:deep(.arco-dropdown-menu .arco-dropdown-option) {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-:deep(.arco-dropdown-menu .arco-dropdown-option:hover) {
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
+/* ── Content 内容区 ── */
+.layout-content {
+  flex: 1;
+  background: var(--content-bg);
+  padding: var(--spacing-page);
+  overflow: auto;
 }
 </style>
